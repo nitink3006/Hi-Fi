@@ -7,14 +7,12 @@ import { useGetCalls } from '@/hooks/useGetCalls';
 import MeetingCard from './MeetingCard';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useToast } from './ui/use-toast';
 
 const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
   const router = useRouter();
   const { endedCalls, upcomingCalls, callRecordings, isLoading } =
     useGetCalls();
   const [recordings, setRecordings] = useState<CallRecording[]>([]);
-  const {toast} = useToast();
 
   const getCalls = () => {
     switch (type) {
@@ -42,38 +40,23 @@ const CallList = ({ type }: { type: 'ended' | 'upcoming' | 'recordings' }) => {
     }
   };
 
-
-   useEffect(() => {
-  const fetchRecordings = async () => {
-    try {
-      // Ensure callRecordings is an array to avoid errors
-      if (!Array.isArray(callRecordings)) {
-        console.error('callRecordings is not an array. Recordings cannot be fetched.');
-        return;
-      }
-
+  useEffect(() => {
+    const fetchRecordings = async () => {
       const callData = await Promise.all(
-        callRecordings.map((meeting) => meeting.queryRecordings())
+        callRecordings?.map((meeting) => meeting.queryRecordings()) ?? [],
       );
 
       const recordings = callData
-        .filter((call) => call.recordings && call.recordings.length > 0) // Check for recordings existence
+        .filter((call) => call.recordings.length > 0)
         .flatMap((call) => call.recordings);
 
       setRecordings(recordings);
-    } catch (error) {
-      console.error('Error fetching recordings:', error);
-      toast({ title: 'Error Fetching Recordings. Please Try Again Later.' });
+    };
+
+    if (type === 'recordings') {
+      fetchRecordings();
     }
-  };
-
-  // Fetch recordings only when type is 'recordings' and callRecordings has changed
-  if (type === 'recordings') {
-    fetchRecordings();
-  }
-
-}, [type, callRecordings]);
-
+  }, [type, callRecordings]);
 
   if (isLoading) return <Loader />;
 

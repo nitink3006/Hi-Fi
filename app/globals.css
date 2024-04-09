@@ -55,7 +55,6 @@
 }
 
 /* ==== clerk class override ===== */
-
 .cl-userButtonPopoverActionButtonIcon {
   color: white;
 }
@@ -71,6 +70,7 @@
 
 .cl-socialButtonsIconButton {
   border: 3px solid #565761;
+  filter: invert(1);
 }
 
 .cl-internal-wkkub3 {
